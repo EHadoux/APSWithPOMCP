@@ -8,8 +8,7 @@
 
 //----------------------------------------------------------------------------
 
-struct RESULTS
-{
+struct RESULTS {
     void Clear();
 
     STATISTIC Time;
@@ -18,8 +17,7 @@ struct RESULTS
     STATISTIC UndiscountedReturn;
 };
 
-inline void RESULTS::Clear()
-{
+inline void RESULTS::Clear() {
     Time.Clear();
     Reward.Clear();
     DiscountedReturn.Clear();
@@ -28,14 +26,12 @@ inline void RESULTS::Clear()
 
 //----------------------------------------------------------------------------
 
-class EXPERIMENT
-{
+class EXPERIMENT {
 public:
 
-    struct PARAMS
-    {
+    struct PARAMS {
         PARAMS();
-        
+
         int NumRuns;
         int NumSteps;
         int SimSteps;
@@ -48,21 +44,23 @@ public:
         bool AutoExploration;
     };
 
-    EXPERIMENT(const SIMULATOR& real, const SIMULATOR& simulator, 
-        const std::string& outputFile, 
-        EXPERIMENT::PARAMS& expParams, MCTS::PARAMS& searchParams);
+    EXPERIMENT(const SIMULATOR &real, const SIMULATOR &simulator, const std::string &outputFile,
+               EXPERIMENT::PARAMS &expParams, MCTS::PARAMS &searchParams);
 
     void Run();
+
     void MultiRun();
+
     void DiscountedReturn();
+
     void AverageReward();
 
 private:
 
-    const SIMULATOR& Real;
-    const SIMULATOR& Simulator;
-    EXPERIMENT::PARAMS& ExpParams;
-    MCTS::PARAMS& SearchParams;
+    const SIMULATOR &Real;
+    const SIMULATOR &Simulator;
+    EXPERIMENT::PARAMS &ExpParams;
+    MCTS::PARAMS &SearchParams;
     RESULTS Results;
 
     std::ofstream OutputFile;

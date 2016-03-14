@@ -8,43 +8,36 @@ using namespace std;
 
 int QNODE::NumChildren = 0;
 
-void QNODE::Initialise()
-{
+void QNODE::Initialise() {
     assert(NumChildren);
     Children.resize(NumChildren);
-    for (int observation = 0; observation < QNODE::NumChildren; observation++)
+    for( int observation = 0; observation < QNODE::NumChildren; observation++ )
         Children[observation] = 0;
     AlphaData.AlphaSum.clear();
 }
 
-void QNODE::DisplayValue(HISTORY& history, int maxDepth, ostream& ostr) const
-{
+void QNODE::DisplayValue(HISTORY &history, int maxDepth, ostream &ostr) const {
     history.Display(ostr);
     ostr << ": " << Value.GetValue() << " (" << Value.GetCount() << ")\n";
-    if (history.Size() >= maxDepth)
+    if( history.Size() >= maxDepth )
         return;
 
-    for (int observation = 0; observation < NumChildren; observation++)
-    {
-        if (Children[observation])
-        {
+    for( int observation = 0; observation < NumChildren; observation++ ) {
+        if( Children[observation] ) {
             history.Back().Observation = observation;
             Children[observation]->DisplayValue(history, maxDepth, ostr);
         }
     }
 }
 
-void QNODE::DisplayPolicy(HISTORY& history, int maxDepth, ostream& ostr) const
-{
+void QNODE::DisplayPolicy(HISTORY &history, int maxDepth, ostream &ostr) const {
     history.Display(ostr);
     ostr << ": " << Value.GetValue() << " (" << Value.GetCount() << ")\n";
-    if (history.Size() >= maxDepth)
+    if( history.Size() >= maxDepth )
         return;
 
-    for (int observation = 0; observation < NumChildren; observation++)
-    {
-        if (Children[observation])
-        {
+    for( int observation = 0; observation < NumChildren; observation++ ) {
+        if( Children[observation] ) {
             history.Back().Observation = observation;
             Children[observation]->DisplayPolicy(history, maxDepth, ostr);
         }
@@ -53,81 +46,69 @@ void QNODE::DisplayPolicy(HISTORY& history, int maxDepth, ostream& ostr) const
 
 //-----------------------------------------------------------------------------
 
-MEMORY_POOL<VNODE> VNODE::VNodePool;
+MEMORY_POOL <VNODE> VNODE::VNodePool;
 
 int VNODE::NumChildren = 0;
 
-void VNODE::Initialise()
-{
+void VNODE::Initialise() {
     assert(NumChildren);
     Children.resize(VNODE::NumChildren);
-    for (int action = 0; action < VNODE::NumChildren; action++)
+    for( int action = 0; action < VNODE::NumChildren; action++ )
         Children[action].Initialise();
 }
 
-VNODE* VNODE::Create()
-{
-    VNODE* vnode = VNodePool.Allocate();
+VNODE *VNODE::Create() {
+    VNODE *vnode = VNodePool.Allocate();
     vnode->Initialise();
     return vnode;
 }
 
-void VNODE::Free(VNODE* vnode, const SIMULATOR& simulator)
-{
+void VNODE::Free(VNODE *vnode, const SIMULATOR &simulator) {
     vnode->BeliefState.Free(simulator);
     VNodePool.Free(vnode);
-    for (int action = 0; action < VNODE::NumChildren; action++)
-        for (int observation = 0; observation < QNODE::NumChildren; observation++)
-            if (vnode->Child(action).Child(observation))
+    for( int action = 0; action < VNODE::NumChildren; action++ )
+        for( int observation = 0; observation < QNODE::NumChildren; observation++ )
+            if( vnode->Child(action).Child(observation))
                 Free(vnode->Child(action).Child(observation), simulator);
 }
 
-void VNODE::FreeAll()
-{
-	VNodePool.DeleteAll();
+void VNODE::FreeAll() {
+    VNodePool.DeleteAll();
 }
 
-void VNODE::SetChildren(int count, double value)
-{
-    for (int action = 0; action < NumChildren; action++)
-    {
-        QNODE& qnode = Children[action];
+void VNODE::SetChildren(int count, double value) {
+    for( int action = 0; action < NumChildren; action++ ) {
+        QNODE &qnode = Children[action];
         qnode.Value.Set(count, value);
         qnode.AMAF.Set(count, value);
     }
 }
 
-void VNODE::DisplayValue(HISTORY& history, int maxDepth, ostream& ostr) const
-{
-    if (history.Size() >= maxDepth)
+void VNODE::DisplayValue(HISTORY &history, int maxDepth, ostream &ostr) const {
+    if( history.Size() >= maxDepth )
         return;
 
-    for (int action = 0; action < NumChildren; action++)
-    {
+    for( int action = 0; action < NumChildren; action++ ) {
         history.Add(action);
         Children[action].DisplayValue(history, maxDepth, ostr);
         history.Pop();
     }
 }
 
-void VNODE::DisplayPolicy(HISTORY& history, int maxDepth, ostream& ostr) const
-{
-    if (history.Size() >= maxDepth)
+void VNODE::DisplayPolicy(HISTORY &history, int maxDepth, ostream &ostr) const {
+    if( history.Size() >= maxDepth )
         return;
 
     double bestq = -Infinity;
     int besta = -1;
-    for (int action = 0; action < NumChildren; action++)
-    {
-        if (Children[action].Value.GetValue() > bestq)
-        {
+    for( int action = 0; action < NumChildren; action++ ) {
+        if( Children[action].Value.GetValue() > bestq ) {
             besta = action;
             bestq = Children[action].Value.GetValue();
         }
     }
 
-    if (besta != -1)
-    {
+    if( besta != -1 ) {
         history.Add(besta);
         Children[besta].DisplayPolicy(history, maxDepth, ostr);
         history.Pop();

@@ -6,17 +6,24 @@
 
 class MEMORY_OBJECT {
 public:
+
     void SetAllocated() { Allocated = true; }
+
     void ClearAllocated() { Allocated = false; }
+
     bool IsAllocated() const { return Allocated; }
 
 private:
+
     bool Allocated;
 };
 
-template<class T> class MEMORY_POOL {
+template<class T>
+class MEMORY_POOL {
 public:
-    MEMORY_POOL() : NumAllocated(0) {}
+
+    MEMORY_POOL() : NumAllocated(0) {
+    }
 
     ~MEMORY_POOL() {
         DeleteAll();
@@ -33,7 +40,7 @@ public:
     }
 
     T *Allocate() {
-        if(FreeList.empty())
+        if( FreeList.empty())
             NewChunk();
         T *obj = FreeList.back();
         FreeList.pop_back();
@@ -51,7 +58,7 @@ public:
     }
 
     void DeleteAll() {
-        for(ChunkIterator i_chunk = Chunks.begin(); i_chunk != Chunks.end(); ++i_chunk)
+        for( ChunkIterator i_chunk = Chunks.begin(); i_chunk != Chunks.end(); ++i_chunk )
             delete *i_chunk;
         Chunks.clear();
         FreeList.clear();
@@ -61,6 +68,7 @@ public:
     int GetNumAllocated() const { return NumAllocated; }
 
 private:
+
     struct CHUNK {
         static const int Size = 256;
         T Objects[Size];
@@ -69,7 +77,7 @@ private:
     void NewChunk() {
         CHUNK *chunk = new CHUNK;
         Chunks.push_back(chunk);
-        for(int i = CHUNK::Size - 1; i >= 0; --i) {
+        for( int i = CHUNK::Size - 1; i >= 0; --i ) {
             FreeList.push_back(&chunk->Objects[i]);
             chunk->Objects[i].ClearAllocated();
         }

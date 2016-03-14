@@ -6,15 +6,17 @@
 #include <iostream>
 
 class HISTORY;
+
 class SIMULATOR;
+
 class QNODE;
+
 class VNODE;
 
 //-----------------------------------------------------------------------------
 // Efficient computation of value from alpha vectors
 // Only used for explicit POMDPs
-struct ALPHA
-{
+struct ALPHA {
     std::vector<double> AlphaSum;
     double MaxValue;
 };
@@ -22,48 +24,41 @@ struct ALPHA
 //-----------------------------------------------------------------------------
 
 template<class COUNT>
-class VALUE
-{
+class VALUE {
 public:
 
-    void Set(double count, double value)
-    {
+    void Set(double count, double value) {
         Count = count;
         Total = value * count;
     }
 
-    void Add(double totalReward)
-    {
+    void Add(double totalReward) {
         Count += 1.0;
         Total += totalReward;
     }
 
-    void Add(double totalReward, COUNT weight)
-    {
+    void Add(double totalReward, COUNT weight) {
         Count += weight;
         Total += totalReward * weight;
     }
 
-    double GetValue() const
-    {
+    double GetValue() const {
         return Count == 0 ? Total : Total / Count;
     }
 
-    COUNT GetCount() const
-    {
+    COUNT GetCount() const {
         return Count;
     }
 
 private:
 
-    COUNT Count  = 0;
-    double Total = 0;
+    COUNT Count;
+    double Total;
 };
 
 //-----------------------------------------------------------------------------
 
-class QNODE
-{
+class QNODE {
 public:
 
     VALUE<int> Value;
@@ -71,47 +66,56 @@ public:
 
     void Initialise();
 
-    VNODE*& Child(int c) { return Children[c]; }
-    VNODE* Child(int c) const { return Children[c]; }
-    ALPHA& Alpha() { return AlphaData; }
-    const ALPHA& Alpha() const { return AlphaData; }
+    VNODE *&Child(int c) { return Children[c]; }
 
-    void DisplayValue(HISTORY& history, int maxDepth, std::ostream& ostr) const;
-    void DisplayPolicy(HISTORY& history, int maxDepth, std::ostream& ostr) const;
+    VNODE *Child(int c) const { return Children[c]; }
+
+    ALPHA &Alpha() { return AlphaData; }
+
+    const ALPHA &Alpha() const { return AlphaData; }
+
+    void DisplayValue(HISTORY &history, int maxDepth, std::ostream &ostr) const;
+
+    void DisplayPolicy(HISTORY &history, int maxDepth, std::ostream &ostr) const;
 
     static int NumChildren;
 
 private:
 
-    std::vector<VNODE*> Children;
+    std::vector<VNODE *> Children;
     ALPHA AlphaData;
 
-friend class VNODE;
+    friend class VNODE;
 };
 
 //-----------------------------------------------------------------------------
 
-class VNODE : public MEMORY_OBJECT
-{
+class VNODE : public MEMORY_OBJECT {
 public:
 
     VALUE<int> Value;
 
-    virtual void Initialise();
-    static VNODE* Create();
-    static void Free(VNODE* vnode, const SIMULATOR& simulator);
+    void Initialise();
+
+    static VNODE *Create();
+
+    static void Free(VNODE *vnode, const SIMULATOR &simulator);
+
     static void FreeAll();
 
-    QNODE& Child(int c) { return Children[c]; }
-    virtual const QNODE& Child(int c) const { return Children[c]; }
-    virtual BELIEF_STATE& Beliefs() { return BeliefState; }
-    virtual void Beliefs(BELIEF_STATE* b) { BeliefState = *b; }
-    virtual const BELIEF_STATE& Beliefs() const { return BeliefState; }
+    QNODE &Child(int c) { return Children[c]; }
+
+    const QNODE &Child(int c) const { return Children[c]; }
+
+    BELIEF_STATE &Beliefs() { return BeliefState; }
+
+    const BELIEF_STATE &Beliefs() const { return BeliefState; }
 
     void SetChildren(int count, double value);
 
-    void DisplayValue(HISTORY& history, int maxDepth, std::ostream& ostr) const;
-    void DisplayPolicy(HISTORY& history, int maxDepth, std::ostream& ostr) const;
+    void DisplayValue(HISTORY &history, int maxDepth, std::ostream &ostr) const;
+
+    void DisplayPolicy(HISTORY &history, int maxDepth, std::ostream &ostr) const;
 
     static int NumChildren;
 
