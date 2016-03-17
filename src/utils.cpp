@@ -31,4 +31,14 @@ namespace UTILS {
         assert(flag == 21);
     }
 
+    unsigned int discrete_distribution(std::vector<double> probas) {
+        double sum  = 0;
+        double rand = RandomDouble(0, 1);
+
+        for( unsigned int i = 0; i < probas.size(); i++ ) {
+            if( rand <= probas[i] + sum )
+                return i;
+            sum += probas[i];
+        }
+    }
 }

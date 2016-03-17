@@ -1,16 +1,10 @@
 #include "mcts.h"
 #include "experiment.h"
 #include <boost/program_options.hpp>
+#include <APS.h>
 
 using namespace std;
 using namespace boost::program_options;
-
-void UnitTests() {
-    cout << "Testing UTILS" << endl;
-    UTILS::UnitTest();
-    cout << "Testing MCTS" << endl;
-    MCTS::UnitTest();
-}
 
 void disableBufferedIO(void) {
     setbuf(stdout, NULL);
@@ -76,40 +70,48 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (vm.count("problem") == 0) {
-        cout << "No problem specified" << endl;
-        return 1;
-    }
-
-    if (vm.count("test")) {
-        cout << "Running unit tests" << endl;
-        UnitTests();
-        return 0;
-    }
-
     SIMULATOR *real = 0;
     SIMULATOR *simulator = 0;
 
-    if (problem == "battleship") {
-        real = new BATTLESHIP(size, size, number);
-        simulator = new BATTLESHIP(size, size, number);
-    } else if (problem == "pocman") {
-        real = new FULL_POCMAN;
-        simulator = new FULL_POCMAN;
-    } else if (problem == "network") {
-        real = new NETWORK(size, number);
-        simulator = new NETWORK(size, number);
-    } else if (problem == "rocksample") {
-        real = new ROCKSAMPLE(size, number);
-        simulator = new ROCKSAMPLE(size, number);
-    } else if (problem == "tag") {
-        real = new TAG(number);
-        simulator = new TAG(number);
-    } else {
-        cout << "Unknown problem" << endl;
-        exit(1);
-    }
+    unsigned int numOfArgs = 8, numOfAtks = 8, numOfActions = 5;
 
+    Rule *r1_1 = new Rule(numOfArgs, numOfAtks, {0}, {{0}}, {1});
+    Rule *r1_2 = new Rule(numOfArgs, numOfAtks, {1, 5+8, 2}, {{1, 2+8}}, {1});
+    Rule *r1_3 = new Rule(numOfArgs, numOfAtks, {1, 5+8, 2}, {{2, 3+8}}, {1});
+    Rule *r1_4 = new Rule(numOfArgs, numOfAtks, {3, 6+8, 4}, {{4, 7+8}}, {1});
+    Rule *r1_5 = new Rule(numOfArgs, numOfAtks, {3, 6+8, 4}, {{3, 6+8}}, {1});
+
+    Rule *r2_1 = new Rule(numOfArgs, numOfAtks, {7, 1+8}, {{7, 6+8}}, {1});
+    Rule *r2_2 = new Rule(numOfArgs, numOfAtks, {6, 2+8}, {{6, 5+8}}, {1});
+    Rule *r2_3 = new Rule(numOfArgs, numOfAtks, {0+8, 5, 6}, {{5, 0+8}, {6, 1+8}}, {0.8, 0.2});
+
+    boost::dynamic_bitset<> private1(numOfArgs), private2(numOfArgs), publicArgs(numOfArgs+numOfAtks);
+    private1[0] = 1;
+    private1[1] = 1;
+    private1[2] = 1;
+    private1[3] = 1;
+    private1[4] = 1;
+    private2[5] = 1;
+    private2[6] = 1;
+    private2[7] = 1;
+
+    boost::dynamic_bitset<> goal(numOfArgs);
+    goal[0] = 1;
+
+    std::vector<std::pair<unsigned int, unsigned int>*> attacks;
+    attacks.push_back(new std::pair<unsigned int, unsigned int>(5,0));
+    attacks.push_back(new std::pair<unsigned int, unsigned int>(6,0));
+    attacks.push_back(new std::pair<unsigned int, unsigned int>(1,5));
+    attacks.push_back(new std::pair<unsigned int, unsigned int>(2,5));
+    attacks.push_back(new std::pair<unsigned int, unsigned int>(7,1));
+    attacks.push_back(new std::pair<unsigned int, unsigned int>(6,2));
+    attacks.push_back(new std::pair<unsigned int, unsigned int>(3,6));
+    attacks.push_back(new std::pair<unsigned int, unsigned int>(4,6));
+
+    APS* aps = new APS(numOfArgs, numOfAtks, numOfActions, private1, private2, publicArgs,
+                       {r1_1, r1_2, r1_3, r1_4, r1_5}, {r2_1, r2_2, r2_3}, goal, attacks);
+    real = aps;
+    simulator = new APS(*aps);
 
     simulator->SetKnowledge(knowledge);
     EXPERIMENT experiment(*real, *simulator, outputfile, expParams, searchParams);

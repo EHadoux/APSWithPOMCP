@@ -1,5 +1,4 @@
 #include "mcts.h"
-#include "testsimulator.h"
 #include <math.h>
 
 #include <algorithm>
@@ -92,7 +91,7 @@ void MCTS::RolloutSearch() {
         STATE *state = Root->Beliefs().CreateSample(Simulator);
         Simulator.Validate(*state);
 
-        int observation;
+        unsigned long observation;
         double immediateReward, delayedReward, totalReward;
         bool terminal = Simulator.Step(*state, action, observation, immediateReward);
 
@@ -161,7 +160,7 @@ double MCTS::SimulateV(STATE &state, VNODE *vnode) {
 }
 
 double MCTS::SimulateQ(STATE &state, QNODE &qnode, int action) {
-    int observation;
+    unsigned long observation;
     double immediateReward, delayedReward = 0;
 
     if( Simulator.HasAlpha())
@@ -281,7 +280,7 @@ double MCTS::Rollout(STATE &state) {
     bool terminal = false;
     int numSteps;
     for( numSteps = 0; numSteps + TreeDepth < Params.MaxDepth && !terminal; ++numSteps ) {
-        int observation;
+        unsigned long observation;
         double reward;
 
         int action = Simulator.SelectRandom(state, History, Status);
@@ -324,7 +323,7 @@ void MCTS::AddTransforms(VNODE *root, BELIEF_STATE &beliefs) {
 }
 
 STATE *MCTS::CreateTransform() const {
-    int stepObs;
+    unsigned long stepObs;
     double stepReward;
 
     STATE *state = Root->Beliefs().CreateSample(Simulator);
@@ -392,107 +391,3 @@ void MCTS::DisplayPolicy(int depth, ostream &ostr) const {
     ostr << "MCTS Policy:" << endl;
     Root->DisplayPolicy(history, depth, ostr);
 }
-
-//-----------------------------------------------------------------------------
-
-void MCTS::UnitTest() {
-    UnitTestGreedy();
-    UnitTestUCB();
-    UnitTestRollout();
-    for( int depth = 1; depth <= 3; ++depth )
-        UnitTestSearch(depth);
-}
-
-void MCTS::UnitTestGreedy() {
-    TEST_SIMULATOR testSimulator(5, 5, 0);
-    PARAMS params;
-    MCTS mcts(testSimulator, params);
-    int numAct = testSimulator.GetNumActions();
-    int numObs = testSimulator.GetNumObservations();
-
-    VNODE *vnode = mcts.ExpandNode(testSimulator.CreateStartState());
-    vnode->Value.Set(1, 0);
-    vnode->Child(0).Value.Set(0, 1);
-    for( int action = 1; action < numAct; action++ )
-        vnode->Child(action).Value.Set(0, 0);
-    assert(mcts.GreedyUCB(vnode, false) == 0);
-}
-
-void MCTS::UnitTestUCB() {
-    TEST_SIMULATOR testSimulator(5, 5, 0);
-    PARAMS params;
-    MCTS mcts(testSimulator, params);
-    int numAct = testSimulator.GetNumActions();
-    int numObs = testSimulator.GetNumObservations();
-
-    // With equal value, action with lowest count is selected
-    VNODE *vnode1 = mcts.ExpandNode(testSimulator.CreateStartState());
-    vnode1->Value.Set(1, 0);
-    for( int action = 0; action < numAct; action++ )
-        if( action == 3 )
-            vnode1->Child(action).Value.Set(99, 0);
-        else
-            vnode1->Child(action).Value.Set(100 + action, 0);
-    assert(mcts.GreedyUCB(vnode1, true) == 3);
-
-    // With high counts, action with highest value is selected
-    VNODE *vnode2 = mcts.ExpandNode(testSimulator.CreateStartState());
-    vnode2->Value.Set(1, 0);
-    for( int action = 0; action < numAct; action++ )
-        if( action == 3 )
-            vnode2->Child(action).Value.Set(99 + numObs, 1);
-        else
-            vnode2->Child(action).Value.Set(100 + numAct - action, 0);
-    assert(mcts.GreedyUCB(vnode2, true) == 3);
-
-    // Action with low value and low count beats actions with high counts
-    VNODE *vnode3 = mcts.ExpandNode(testSimulator.CreateStartState());
-    vnode3->Value.Set(1, 0);
-    for( int action = 0; action < numAct; action++ )
-        if( action == 3 )
-            vnode3->Child(action).Value.Set(1, 1);
-        else
-            vnode3->Child(action).Value.Set(100 + action, 1);
-    assert(mcts.GreedyUCB(vnode3, true) == 3);
-
-    // Actions with zero count is always selected
-    VNODE *vnode4 = mcts.ExpandNode(testSimulator.CreateStartState());
-    vnode4->Value.Set(1, 0);
-    for( int action = 0; action < numAct; action++ )
-        if( action == 3 )
-            vnode4->Child(action).Value.Set(0, 0);
-        else
-            vnode4->Child(action).Value.Set(1, 1);
-    assert(mcts.GreedyUCB(vnode4, true) == 3);
-}
-
-void MCTS::UnitTestRollout() {
-    TEST_SIMULATOR testSimulator(2, 2, 0);
-    PARAMS params;
-    params.NumSimulations = 1000;
-    params.MaxDepth = 10;
-    MCTS mcts(testSimulator, params);
-    double totalReward;
-    for( int n = 0; n < mcts.Params.NumSimulations; ++n ) {
-        STATE *state = testSimulator.CreateStartState();
-        mcts.TreeDepth = 0;
-        totalReward += mcts.Rollout(*state);
-    }
-    double rootValue = totalReward / mcts.Params.NumSimulations;
-    double meanValue = testSimulator.MeanValue();
-    assert(fabs(meanValue - rootValue) < 0.1);
-}
-
-void MCTS::UnitTestSearch(int depth) {
-    TEST_SIMULATOR testSimulator(3, 2, depth);
-    PARAMS params;
-    params.MaxDepth = depth + 1;
-    params.NumSimulations = pow(10, depth + 1);
-    MCTS mcts(testSimulator, params);
-    mcts.UCTSearch();
-    double rootValue = mcts.Root->Value.GetValue();
-    double optimalValue = testSimulator.OptimalValue();
-    assert(fabs(optimalValue - rootValue) < 0.1);
-}
-
-//-----------------------------------------------------------------------------

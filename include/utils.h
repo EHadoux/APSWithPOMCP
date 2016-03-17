@@ -2,10 +2,9 @@
 #define UTILS_H
 
 #include <vector>
-#include <stdlib.h>
+#include <cstdlib>
 #include <math.h>
 #include <assert.h>
-#include "coord.h"
 #include "memorypool.h"
 #include <algorithm>
 
@@ -20,7 +19,6 @@
 #endif
 
 namespace UTILS {
-
     inline int Sign(int x) {
         return (x > 0) - (x < 0);
     }
@@ -36,6 +34,8 @@ namespace UTILS {
     inline double RandomDouble(double min, double max) {
         return (double) rand() / RAND_MAX * (max - min) + min;
     }
+
+    unsigned int discrete_distribution(std::vector<double> probas);
 
     inline void RandomSeed(int seed) {
         srand(seed);

@@ -11,9 +11,9 @@ public:
 class MOMDP : public SIMULATOR {
 
 public:
-    MOMDP();
-
     MOMDP(int numActions, int numVisibleObservations, int numHiddenObservations, double discount);
+
+    MOMDP(const MOMDP& other);
 
     virtual ~MOMDP();
 };
