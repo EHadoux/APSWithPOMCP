@@ -51,7 +51,7 @@ public:
 
     SIMULATOR();
 
-    SIMULATOR(int numActions, unsigned long numObservations, double discount = 1.0);
+    SIMULATOR(int numActions, int numObservations, double discount = 1.0);
 
     virtual ~SIMULATOR();
 
@@ -63,7 +63,7 @@ public:
 
     // Update state according to action, and get observation and reward. 
     // Return value of true indicates termination of episode (if episodic)
-    virtual bool Step(STATE &state, int action, unsigned long &observation, double &reward) const = 0;
+    virtual bool Step(STATE &state, int action, int &observation, double &reward) const = 0;
 
     // Create new state and copy argument (must be same type)
     virtual STATE *Copy(const STATE &state) const = 0;
@@ -113,7 +113,7 @@ public:
 
     int GetNumActions() const { return NumActions; }
 
-    unsigned long GetNumObservations() const { return NumObservations; }
+    int GetNumObservations() const { return NumObservations; }
 
     bool IsEpisodic() const { return false; }
 
@@ -125,8 +125,7 @@ public:
 
 protected:
 
-    int NumActions;
-    unsigned long NumObservations;
+    int NumActions, NumObservations;
     double Discount, RewardRange;
     KNOWLEDGE Knowledge;
 };

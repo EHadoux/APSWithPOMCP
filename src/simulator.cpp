@@ -12,7 +12,7 @@ SIMULATOR::STATUS::STATUS() : Phase(TREE), Particles(CONSISTENT) {
 SIMULATOR::SIMULATOR() : Discount(1.0), NumActions(0), NumObservations(0), RewardRange(1.0) {
 }
 
-SIMULATOR::SIMULATOR(int numActions, unsigned long numObservations, double discount) : NumActions(numActions),
+SIMULATOR::SIMULATOR(int numActions, int numObservations, double discount) : NumActions(numActions),
                                                                              NumObservations(numObservations),
                                                                              Discount(discount) {
     assert(discount > 0 && discount <= 1);

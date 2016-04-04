@@ -102,7 +102,7 @@ public:
 
     void FreeState(STATE *state) const;
 
-    bool Step(STATE &state, int action, unsigned long &observation, double &reward) const;
+    bool Step(STATE &state, int action, int &observation, double &reward) const;
 
     APSState *Copy(const STATE &state) const;
 

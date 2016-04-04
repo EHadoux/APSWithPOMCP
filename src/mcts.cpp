@@ -91,7 +91,7 @@ void MCTS::RolloutSearch() {
         STATE *state = Root->Beliefs().CreateSample(Simulator);
         Simulator.Validate(*state);
 
-        unsigned long observation;
+        int observation;
         double immediateReward, delayedReward, totalReward;
         bool terminal = Simulator.Step(*state, action, observation, immediateReward);
 
@@ -160,7 +160,7 @@ double MCTS::SimulateV(STATE &state, VNODE *vnode) {
 }
 
 double MCTS::SimulateQ(STATE &state, QNODE &qnode, int action) {
-    unsigned long observation;
+    int observation;
     double immediateReward, delayedReward = 0;
 
     if( Simulator.HasAlpha())
@@ -280,7 +280,7 @@ double MCTS::Rollout(STATE &state) {
     bool terminal = false;
     int numSteps;
     for( numSteps = 0; numSteps + TreeDepth < Params.MaxDepth && !terminal; ++numSteps ) {
-        unsigned long observation;
+        int observation;
         double reward;
 
         int action = Simulator.SelectRandom(state, History, Status);
@@ -323,7 +323,7 @@ void MCTS::AddTransforms(VNODE *root, BELIEF_STATE &beliefs) {
 }
 
 STATE *MCTS::CreateTransform() const {
-    unsigned long stepObs;
+    int stepObs;
     double stepReward;
 
     STATE *state = Root->Beliefs().CreateSample(Simulator);

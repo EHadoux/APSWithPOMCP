@@ -5,7 +5,7 @@ APS::APS(unsigned int args, unsigned int atk, unsigned int actions, const boost:
          const boost::dynamic_bitset<> &private2, const boost::dynamic_bitset<> &publicArg,
          std::initializer_list<Rule *> rules1, std::initializer_list<Rule *> rules2, const boost::dynamic_bitset<> &goal,
          const std::vector<std::pair<unsigned int, unsigned int>*> &attacks) :
-        SIMULATOR(actions, 4*((unsigned long)pow(2,2*args+atk)), 0.9), _numOfArguments(args), _numOfAttacks(atk), _private1(private1),
+        SIMULATOR(actions, (int)(pow(2,2*args+atk)), 0.9), _numOfArguments(args), _numOfAttacks(atk), _private1(private1),
         _private2(private2), _publicArg(publicArg), _rules1(rules1), _rules2(rules2), _goal(goal), _attacks(attacks) {
     _copy = false;
 }
@@ -43,7 +43,7 @@ void APS::FreeState(STATE *state) const {
     MemoryPool.Free(s);
 }
 
-bool APS::Step(STATE &state, int action, unsigned long &observation, double &reward) const {
+bool APS::Step(STATE &state, int action, int &observation, double &reward) const {
     APSState s    = safe_cast<APSState&>(state);
     Rule *to_fire   = _rules1[action];
 

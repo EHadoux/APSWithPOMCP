@@ -40,5 +40,7 @@ namespace UTILS {
                 return i;
             sum += probas[i];
         }
+
+        throw("Should never pass there.");
     }
 }

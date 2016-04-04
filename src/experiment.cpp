@@ -39,7 +39,7 @@ void EXPERIMENT::Run() {
         Real.DisplayState(*state, cout);
 
     for( t = 0; t < ExpParams.NumSteps; t++ ) {
-        unsigned long observation;
+        int observation;
         double reward;
         int action = mcts.SelectAction();
         terminal = Real.Step(*state, action, observation, reward);
@@ -74,7 +74,7 @@ void EXPERIMENT::Run() {
         cout << "Out of particles, finishing episode with SelectRandom" << endl;
         HISTORY history = mcts.GetHistory();
         while (++t < ExpParams.NumSteps) {
-            unsigned long observation;
+            int observation;
             double reward;
 
             // This passes real state into simulator!
