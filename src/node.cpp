@@ -10,9 +10,6 @@ int QNODE::NumChildren = 0;
 
 void QNODE::Initialise() {
     assert(NumChildren);
-    Children.resize(NumChildren);
-    for( int observation = 0; observation < QNODE::NumChildren; observation++ )
-        Children[observation] = 0;
     AlphaData.AlphaSum.clear();
 }
 
@@ -22,10 +19,10 @@ void QNODE::DisplayValue(HISTORY &history, int maxDepth, ostream &ostr) const {
     if( history.Size() >= maxDepth )
         return;
 
-    for( int observation = 0; observation < NumChildren; observation++ ) {
-        if( Children[observation] ) {
-            history.Back().Observation = observation;
-            Children[observation]->DisplayValue(history, maxDepth, ostr);
+    for( auto it = Children.begin(); it != Children.end(); ++it ) {
+        if( it->second ) {
+            history.Back().Observation = it->first;
+            it->second->DisplayValue(history, maxDepth, ostr);
         }
     }
 }
@@ -36,10 +33,10 @@ void QNODE::DisplayPolicy(HISTORY &history, int maxDepth, ostream &ostr) const {
     if( history.Size() >= maxDepth )
         return;
 
-    for( int observation = 0; observation < NumChildren; observation++ ) {
-        if( Children[observation] ) {
-            history.Back().Observation = observation;
-            Children[observation]->DisplayPolicy(history, maxDepth, ostr);
+    for( auto it = Children.begin(); it != Children.end(); ++it ) {
+        if( it->second ) {
+            history.Back().Observation = it->first;
+            it->second->DisplayPolicy(history, maxDepth, ostr);
         }
     }
 }
@@ -67,9 +64,9 @@ void VNODE::Free(VNODE *vnode, const SIMULATOR &simulator) {
     vnode->BeliefState.Free(simulator);
     VNodePool.Free(vnode);
     for( int action = 0; action < VNODE::NumChildren; action++ )
-        for( int observation = 0; observation < QNODE::NumChildren; observation++ )
-            if( vnode->Child(action).Child(observation))
-                Free(vnode->Child(action).Child(observation), simulator);
+        for( auto it = vnode->Child(action).begin(); it != vnode->Child(action).end(); ++it )
+            if( it->second )
+                Free(it->second, simulator);
 }
 
 void VNODE::FreeAll() {

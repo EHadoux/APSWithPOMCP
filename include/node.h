@@ -4,6 +4,7 @@
 #include "beliefstate.h"
 #include "utils.h"
 #include <iostream>
+#include <unordered_map>
 
 class HISTORY;
 
@@ -68,7 +69,7 @@ public:
 
     VNODE *&Child(int c) { return Children[c]; }
 
-    VNODE *Child(int c) const { return Children[c]; }
+    VNODE *Child(int c) const { return Children.at(c); }
 
     ALPHA &Alpha() { return AlphaData; }
 
@@ -78,11 +79,19 @@ public:
 
     void DisplayPolicy(HISTORY &history, int maxDepth, std::ostream &ostr) const;
 
+    std::unordered_map<int, VNODE *>::const_iterator begin() const {
+       return Children.begin();
+    };
+
+    std::unordered_map<int, VNODE *>::const_iterator end() const {
+        return Children.end();
+    };
+
     static int NumChildren;
 
 private:
 
-    std::vector<VNODE *> Children;
+    std::unordered_map<int, VNODE *> Children;
     ALPHA AlphaData;
 
     friend class VNODE;
