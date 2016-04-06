@@ -107,22 +107,22 @@ bool APS::Step(STATE &state, int action, int &observation, double &reward) const
     }
 
     //Goal fulfilment
-    bool fulfiled = true;
+    bool fulfilled = true;
     for(unsigned int i = 0; i < _goal.size(); i++) {
         boost::dynamic_bitset<> current(s.publicArg);
         if( !Accepted(current, i) ) {
-            fulfiled = false;
+            fulfilled = false;
             break;
         }
     }
     reward = -1;
-    if( fulfiled )
+    if( fulfilled )
         reward = 10;
 
     s.fill_momdpstate();
     observation = s.visiblestate;
 
-    return fulfiled;
+    return fulfilled;
 }
 
 bool APS::Accepted(boost::dynamic_bitset<> &current, unsigned int argument) const {

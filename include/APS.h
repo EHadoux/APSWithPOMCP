@@ -67,13 +67,13 @@ struct Rule {
 class APSState : public STATE {
 public:
     boost::dynamic_bitset<> private1, private2, publicArg;
-    unsigned long invisiblestate, visiblestate;
+    int invisiblestate, visiblestate;
 
     void fill_momdpstate() {
-        invisiblestate = private2.to_ulong();
+        invisiblestate = (int)private2.to_ulong();
         boost::dynamic_bitset<> priv_pub(private1);
         priv_pub.append(publicArg.to_ulong());
-        visiblestate = priv_pub.to_ulong();
+        visiblestate = (int)priv_pub.to_ulong();
     }
 
     /*void fill_apsstate() {
