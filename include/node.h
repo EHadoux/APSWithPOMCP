@@ -79,13 +79,15 @@ public:
 
     void DisplayPolicy(HISTORY &history, int maxDepth, std::ostream &ostr) const;
 
-    std::unordered_map<int, VNODE *>::const_iterator begin() const {
+    std::unordered_map<int, VNODE *>::const_iterator ChildrenBegin() const {
        return Children.begin();
     };
 
-    std::unordered_map<int, VNODE *>::const_iterator end() const {
+    std::unordered_map<int, VNODE *>::const_iterator ChildrenEnd() const {
         return Children.end();
     };
+
+    std::unordered_map<int, VNODE *>::const_iterator remove(std::unordered_map<int, VNODE *>::const_iterator it) { return Children.erase(it); }
 
     static int NumChildren;
 

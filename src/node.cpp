@@ -64,9 +64,12 @@ void VNODE::Free(VNODE *vnode, const SIMULATOR &simulator) {
     vnode->BeliefState.Free(simulator);
     VNodePool.Free(vnode);
     for( int action = 0; action < VNODE::NumChildren; action++ )
-        for( auto it = vnode->Child(action).begin(); it != vnode->Child(action).end(); ++it )
-            if( it->second )
+        for( auto it = vnode->Child(action).ChildrenBegin(); it != vnode->Child(action).ChildrenEnd(); )
+            if( it->second ) {
                 Free(it->second, simulator);
+                it = vnode->Child(action).remove(it);
+            } else
+                ++it;
 }
 
 void VNODE::FreeAll() {

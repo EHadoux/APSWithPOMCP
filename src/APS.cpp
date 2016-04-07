@@ -45,7 +45,7 @@ void APS::FreeState(STATE *state) const {
 
 bool APS::Step(STATE &state, int action, int &observation, double &reward) const {
     APSState s    = safe_cast<APSState&>(state);
-    Rule *to_fire   = _rules1[action];
+    Rule *to_fire = _rules1[action];
 
     // Agent 1 check action/rule compatibility
     bool compatible = true;

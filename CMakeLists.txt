@@ -4,7 +4,7 @@ project(POMCP)
 set(BOOST_ROOT "/usr/lib/x86_64-linux-gnu")
 find_package(Boost REQUIRED COMPONENTS program_options)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O2 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O0 -g")
 
 include_directories(include ${BOOST_INCLUDE_DIRS})
 
